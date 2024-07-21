@@ -1,0 +1,67 @@
+{
+  "scope": "aux4",
+  "name": "aws-encrypter",
+  "version": "0.0.1",
+  "dependencies": [
+    "aux4/system-installer-pkgx"
+  ],
+  "system": [
+    "pkgx:aws.amazon.com/cli"
+  ],
+  "profiles": [
+    {
+      "name": "main",
+      "commands": [
+        {
+          "name": "encrypter",
+          "execute": [
+            "profile:encrypter"
+          ],
+          "help": {
+            "text": "aux4 encrypter based on AWS KMS"
+          }
+        }
+      ]
+    },
+    {
+      "name": "encrypter",
+      "commands": [
+        {
+          "name": "encrypt",
+          "execute": [
+            "aws kms encrypt --key-id alias/${secret} --plaintext $(echo -n '${text}' | base64) --output text --query CiphertextBlob"
+          ],
+          "help": {
+            "text": "encrypts a text using the specified KMS key",
+            "variables": [
+              {
+                "name": "secret",
+                "text": "the alias of the KMS key to use"
+              },
+              {
+                "name": "text",
+                "text": "the text to encrypt",
+                "arg": true
+              }
+            ]
+          }
+        },
+        {
+          "name": "decrypt",
+          "execute": [
+            "aws kms decrypt --ciphertext-blob '${text}' --output text --query Plaintext | base64 --decode"
+          ],
+          "help": {
+            "text": "decrypts a text using the specified KMS key",
+            "variables": [
+              {
+                "name": "text",
+                "text": "the base64-encoded ciphertext to decrypt"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
